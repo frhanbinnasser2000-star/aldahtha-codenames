@@ -31,13 +31,11 @@
         }
         .codename-card:hover { transform: scale(1.02); border-color: #8c734f; }
         
-        /* حالات البطاقات عند الكشف للجميع */
         .codename-card.revealed-blue { background: #1e3a8a !important; color: #93c5fd !important; border-color: #3b82f6 !important; opacity: 0.7; }
         .codename-card.revealed-red { background: #991b1b !important; color: #fca5a5 !important; border-color: #ef4444 !important; opacity: 0.7; }
         .codename-card.revealed-neutral { background: #374151 !important; color: #9ca3af !important; border-color: #4b5563 !important; opacity: 0.5; }
         .codename-card.revealed-assassin { background: #030712 !important; color: #ef4444 !important; border-color: #dc2626 !important; }
 
-        /* رؤية القائد الألوان السرية */
         .spymaster-view.blue-card { background: #1e3a8a !important; color: #93c5fd !important; border: 3px solid #60a5fa !important; }
         .spymaster-view.red-card { background: #991b1b !important; color: #fca5a5 !important; border: 3px solid #f87171 !important; }
         .spymaster-view.neutral-card { background: #4b5563 !important; color: #d1d5db !important; border: 3px solid #9ca3af !important; }
@@ -55,17 +53,17 @@
             <div id="nickname-display" class="text-xs text-gray-400">اللاعب: <span id="current-player-name" class="text-white font-bold">أبو ناصر مجهد الكل</span></div>
         </div>
         <div id="top-status" class="text-sm font-black text-yellow-400 text-center">
-            وزارة الدعثه الداخلية - مرحلة التجهيز
+            وزارة الدعثه الداخلية - مرحلة التجهيز الاحترافي 🎮
         </div>
         <div class="flex items-center gap-2">
             <button onclick="changeNickname()" class="bg-gray-800 hover:bg-gray-700 text-xs px-3 py-1.5 rounded-xl border border-gray-700 text-gray-300 font-bold transition">تغيير الاسم</button>
         </div>
     </header>
 
-    <!-- المحتوى الرئيسي -->
+    <!-- المحتوى الرئيسي (الترتيب: يمين أزرق، وسط لوحة، يسار أحمر) -->
     <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 max-w-[1700px] mx-auto w-full items-start">
         
-        <!-- الفريق الأزرق (يسار) -->
+        <!-- الفريق الأزرق (اليمين) -->
         <div class="lg:col-span-3 bg-gray-900/80 border border-blue-900/50 p-4 rounded-2xl shadow-2xl flex flex-col gap-3">
             <div class="bg-blue-600 text-white font-black text-center py-2 rounded-xl text-sm shadow-lg flex justify-between px-4 items-center">
                 <span>BLUE TEAM</span>
@@ -85,7 +83,7 @@
             </div>
         </div>
 
-        <!-- المنتصف (لوحة اللعب أو شاشة البداية) -->
+        <!-- المنتصف (لوحة اللعب) -->
         <div class="lg:col-span-6 bg-gray-900/90 border border-gray-800 p-5 rounded-2xl shadow-2xl flex flex-col justify-center min-h-[560px]">
             
             <!-- شاشة التجهيز -->
@@ -112,11 +110,11 @@
                 <!-- لوحة البطاقات الـ 25 -->
                 <div id="board" class="card-grid"></div>
 
-                <!-- شريط تلميح القائد السفلي (مثل الصورة المطلوبة تماماً) -->
+                <!-- شريط تلميح القائد السفلي (معدل للعمل بكامل الكفاءة والكتابة) -->
                 <div id="clue-control-bar" class="hidden bg-gray-950 border border-indigo-500/50 p-2.5 rounded-xl flex items-center justify-between gap-3">
                     <div class="text-xs font-bold text-indigo-300" id="clue-status-label">إعطاء تلميح لفريقك:</div>
                     <div class="flex items-center gap-2 flex-1 max-w-md">
-                        <input type="text" id="clue-word-input" placeholder="اكتب التلميح هنا..." class="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                        <input type="text" id="clue-word-input" autocomplete="off" placeholder="اكتب التلميح هنا..." class="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500">
                         <select id="clue-number-select" class="bg-gray-900 border border-gray-800 rounded-lg px-2 py-1.5 text-xs text-white">
                             <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
                         </select>
@@ -127,7 +125,7 @@
 
         </div>
 
-        <!-- الفريق الأحمر (يمين) -->
+        <!-- الفريق الأحمر (اليسار) -->
         <div class="lg:col-span-3 bg-gray-900/80 border border-red-900/50 p-4 rounded-2xl shadow-2xl flex flex-col gap-3">
             <div class="bg-red-600 text-white font-black text-center py-2 rounded-xl text-sm shadow-lg flex justify-between px-4 items-center">
                 <span>RED TEAM</span>
@@ -273,7 +271,6 @@
                     else if (type === 'assassin') className += " revealed-assassin";
                     else className += " revealed-neutral";
                 } else if (spymasterMode) {
-                    // رؤية القائد السرية للألوان
                     if (type === 'blue') className += " spymaster-view blue-card";
                     else if (type === 'red') className += " spymaster-view red-card";
                     else if (type === 'assassin') className += " spymaster-view assassin-card";
@@ -291,7 +288,7 @@
                         }
                         renderBoard();
                     } else if (spymasterMode) {
-                        alert('أنت القائد! لا يمكنك اختيار الكلمات، دورك إعطاء التلميح لفريقك.');
+                        // السماح للقائد بالنقر دون منع الكتابة
                     }
                 };
                 board.appendChild(card);
@@ -309,7 +306,7 @@
                 alert('الرجاء إدخال كلمة التلميح أولاً!');
                 return;
             }
-            alert(`تم إرسال التلميح بنجاح: "${clueWord}" بعدد (${clueNum}) لعناصر فريقك!`);
+            alert(`تم إرسال التلميح بنجاح: "${clueWord}" بعدد (${clueNum}) لفريقك!`);
             document.getElementById('clue-word-input').value = '';
         }
 
