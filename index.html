@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,7 +44,7 @@
             </button>
             <div id="nickname-display" class="text-xs text-gray-400">اللاعب: <span id="current-player-name" class="text-white font-bold">أبو ناصر مجهد الكل</span></div>
         </div>
-        <div id="top-status" class="text-sm font-black text-yellow-400">
+        <div id="top-status" class="text-sm font-black text-yellow-400 text-center">
             وزارة الدعثه الداخلية - مرحلة التجهيز
         </div>
         <div class="flex items-center gap-2">
@@ -52,10 +52,10 @@
         </div>
     </header>
 
-    <!-- المحتوى الرئيسي -->
+    <!-- المحتوى الرئيسي (الترتيب الصحيح: أزرق يسار، لوحة بالوسط، أحمر يمين) -->
     <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-5 max-w-[1700px] mx-auto w-full items-start">
         
-        <!-- الفريق الأزرق (اليسار) -->
+        <!-- الفريق الأزرق (اليسار تماماً) -->
         <div class="lg:col-span-3 bg-gray-900/80 border border-blue-900/50 p-5 rounded-2xl shadow-2xl flex flex-col gap-4">
             <div class="bg-blue-600 text-white font-black text-center py-2.5 rounded-xl text-sm shadow-lg flex justify-between px-4 items-center">
                 <span>BLUE TEAM</span>
@@ -82,10 +82,10 @@
             
             <!-- شاشة تجهيز اللعبة (Lobby) -->
             <div id="lobby-screen" class="space-y-6 text-center">
-                <div class="w-20 h-20 bg-indigo-600/20 border-2 border-indigo-500 text-indigo-400 rounded-2xl mx-xl flex items-center justify-center text-3xl font-black shadow-xl mx-auto">د</div>
+                <div class="w-20 h-20 bg-indigo-600/20 border-2 border-indigo-500 text-indigo-400 rounded-2xl flex items-center justify-center text-3xl font-black shadow-xl mx-auto">د</div>
                 <div>
                     <h2 class="text-2xl font-black text-white mb-1">لعبة كودنيمز - وزارة الدعثه</h2>
-                    <p class="text-xs text-gray-400">تجمع الكطيكات العليا، اختر فريقك ثم اضغط ابدأ اللعبة لتبدأ المتعة!</p>
+                    <p class="text-xs text-gray-400">تجمع التكتيكات العليا، اختر فريقك ثم اضغط ابدأ اللعبة لتبدأ المتعة!</p>
                 </div>
 
                 <div class="bg-gray-950 border border-gray-800 p-4 rounded-xl text-xs text-gray-300 flex justify-between items-center max-w-md mx-auto">
@@ -118,11 +118,11 @@
 
         </div>
 
-        <!-- الفريق الأحمر (اليمين) -->
+        <!-- الفريق الأحمر (اليمين تماماً) -->
         <div class="lg:col-span-3 bg-gray-900/80 border border-red-900/50 p-5 rounded-2xl shadow-2xl flex flex-col gap-4">
             <div class="bg-red-600 text-white font-black text-center py-2.5 rounded-xl text-sm shadow-lg flex justify-between px-4 items-center">
-                <span id="red-score-badge" class="bg-red-950 px-2.5 py-0.5 rounded-lg text-xs">نقاط: 8</span>
                 <span>RED TEAM</span>
+                <span id="red-score-badge" class="bg-red-950 px-2.5 py-0.5 rounded-lg text-xs">نقاط: 8</span>
             </div>
             
             <!-- Operatives -->
@@ -144,7 +144,7 @@
 
     <!-- نافذة الأدمن -->
     <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl w-full max-w-md shadow-2xl relative text-right" dir="rtl">
+        <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl w-full max-w-md shadow-2xl relative text-right">
             <button onclick="closeAdminModal()" class="absolute top-4 left-4 text-gray-400 hover:text-white font-bold">✕</button>
             <div class="text-lg font-black mb-1 text-white">لوحة تحكم الأدمن السرية</div>
             <p class="text-xs text-gray-400 mb-4">الرقم السري الافتراضي: <span class="text-yellow-400 font-mono">aldahtha2026</span></p>
@@ -176,7 +176,7 @@
 
         let gameState = {
             words: [],
-            types: [], // 'blue', 'red', 'neutral', 'assassin'
+            types: [], 
             revealed: Array(25).fill(false),
             blueScore: 9,
             redScore: 8,
@@ -192,13 +192,11 @@
         }
 
         function joinTeam(team, role) {
-            // إزالة اللاعب من أي فريق سابق
             teams.blue.ops = teams.blue.ops.filter(n => n !== playerName);
             teams.blue.spy = teams.blue.spy.filter(n => n !== playerName);
             teams.red.ops = teams.red.ops.filter(n => n !== playerName);
             teams.red.spy = teams.red.spy.filter(n => n !== playerName);
 
-            // إضافته للفريق والوضع الجديد
             teams[team][role].push(playerName);
             updateTeamsUI();
         }
@@ -216,17 +214,12 @@
         }
 
         function startTheGame() {
-            // خلط الكلمات وتوزيع الأنواع عشوائياً (9 للأزرق، 8 للأحمر، 1 قاتل، 7 حيادي)
             let shuffledWords = [...defaultWords].sort(() => Math.random() - 0.5);
             let types = Array(25).fill('neutral');
             
-            // تعيين 9 أزرق
             for(let i=0; i<9; i++) types[i] = 'blue';
-            // تعيين 8 أحمر
             for(let i=9; i<17; i++) types[i] = 'red';
-            // تعيين 1 قاتل
             types[17] = 'assassin';
-            // الباقي حيادي (متروكة كما هي)
             
             types.sort(() => Math.random() - 0.5);
 
@@ -267,11 +260,7 @@
                     if (!gameState.revealed[index]) {
                         gameState.revealed[index] = true;
                         let type = gameState.types[index];
-                        if (type === 'blue') {
-                            // تم اكتشاف كلمة زرقاء
-                        } else if (type === 'red') {
-                            // تم اكتشاف كلمة حمراء
-                        } else if (type === 'assassin') {
+                        if (type === 'assassin') {
                             alert('⚠️ كبففف! ضغطت على كلمة الاغتيال (القاتل)! انتهت اللعبة!');
                         }
                         renderBoard();
