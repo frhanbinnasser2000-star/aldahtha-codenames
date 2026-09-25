@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,11 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #0b0f19; color: #f3f4f6; }
-        .card-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+        body { font-family: 'Tajawal', sans-serif; background-color: #0c101d; color: #f3f4f6; }
+        .card-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
         .codename-card {
-            background: linear-gradient(135deg, #f3ebd8 0%, #e6d7bc 100%);
-            color: #2c2416;
+            background: linear-gradient(135deg, #f5ebd9 0%, #e3d2b5 100%);
+            color: #2b2111;
             border-radius: 10px;
             font-weight: 900;
             display: flex;
@@ -19,118 +19,132 @@
             justify-content: center;
             text-align: center;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.4);
             transition: all 0.2s ease;
             aspect-ratio: 4/3;
-            font-size: 14px;
-            border: 2px solid #c8b79b;
+            font-size: 15px;
+            border: 2px solid #c4b093;
+            user-select: none;
+            padding: 8px;
         }
-        .codename-card:hover { transform: scale(1.03); border-color: #8b7355; }
-        .codename-card.revealed { background: #1f2937; color: #9ca3af; border-color: #374151; opacity: 0.6; }
+        .codename-card:hover { transform: scale(1.03); border-color: #8c734f; }
+        .codename-card.revealed-blue { background: #1e3a8a !important; color: #93c5fd !important; border-color: #3b82f6 !important; opacity: 0.7; }
+        .codename-card.revealed-red { background: #991b1b !important; color: #fca5a5 !important; border-color: #ef4444 !important; opacity: 0.7; }
+        .codename-card.revealed-neutral { background: #374151 !important; color: #9ca3af !important; border-color: #4b5563 !important; opacity: 0.5; }
+        .codename-card.revealed-assassin { background: #030712 !important; color: #ef4444 !important; border-color: #dc2626 !important; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between p-3 md:p-5 select-none">
+<body class="min-h-screen flex flex-col justify-between p-4">
 
-    <!-- شريط العلوى (التحكم والأدمن) -->
-    <header class="flex justify-between items-center bg-gray-900/90 border border-gray-800 px-4 py-2 rounded-xl mb-4 shadow-xl">
+    <!-- الشريط العلوي -->
+    <header class="flex justify-between items-center bg-gray-900/90 border border-gray-800 px-5 py-3 rounded-2xl mb-4 shadow-xl backdrop-blur-md">
         <div class="flex items-center gap-3">
-            <button onclick="openAdminModal()" class="bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
-                <span>Admin</span> <span id="admin-count" class="bg-indigo-600 px-1.5 py-0.5 rounded text-[10px]">1</span>
+            <button onclick="openAdminModal()" class="bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
+                <span>🔒 لوحة الأدمن</span> <span id="admin-badge" class="bg-indigo-600 px-2 py-0.5 rounded-lg text-[10px]">سري</span>
             </button>
+            <div id="nickname-display" class="text-xs text-gray-400">اللاعب: <span id="current-player-name" class="text-white font-bold">أبو ناصر مجهد الكل</span></div>
         </div>
-        <div id="game-status-banner" class="text-xs md:text-sm font-bold text-yellow-400">
-            وزارة الدعثه الداخلية - جاهز للبدء
+        <div id="top-status" class="text-sm font-black text-yellow-400">
+            وزارة الدعثه الداخلية - مرحلة التجهيز
         </div>
         <div class="flex items-center gap-2">
-            <span class="text-xs bg-gray-800 px-3 py-1 rounded-lg border border-gray-700 text-gray-300">Rules</span>
-            <span class="text-xs bg-gray-800 px-3 py-1 rounded-lg border border-gray-700 text-gray-300">Settings</span>
+            <button onclick="changeNickname()" class="bg-gray-800 hover:bg-gray-700 text-xs px-3 py-2 rounded-xl border border-gray-700 text-gray-300 font-bold transition">تغيير الاسم</button>
         </div>
     </header>
 
-    <!-- محتوى اللعبة الرئيسي -->
-    <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 max-w-[1600px] mx-auto w-full items-center">
+    <!-- المحتوى الرئيسي -->
+    <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-5 max-w-[1700px] mx-auto w-full items-start">
         
         <!-- الفريق الأزرق (اليسار) -->
-        <div class="lg:col-span-3 bg-gray-900/70 border border-blue-900/40 p-4 rounded-2xl shadow-xl flex flex-col gap-4">
-            <div class="bg-blue-600 text-white font-black text-center py-2 rounded-xl text-sm shadow-md">BLUE TEAM</div>
+        <div class="lg:col-span-3 bg-gray-900/80 border border-blue-900/50 p-5 rounded-2xl shadow-2xl flex flex-col gap-4">
+            <div class="bg-blue-600 text-white font-black text-center py-2.5 rounded-xl text-sm shadow-lg flex justify-between px-4 items-center">
+                <span>BLUE TEAM</span>
+                <span id="blue-score-badge" class="bg-blue-950 px-2.5 py-0.5 rounded-lg text-xs">نقاط: 9</span>
+            </div>
             
             <!-- Operatives -->
-            <div class="bg-blue-950/40 border border-blue-900/30 p-3 rounded-xl space-y-2">
-                <div class="text-xs font-bold text-blue-300 flex justify-between"><span>OPERATIVES</span> <span id="blue-ops-count">1</span></div>
-                <div id="blue-ops-list" class="bg-gray-950 p-2 rounded-lg text-xs text-gray-300 min-h-[40px] flex items-center">أبو ناصر مجهد الكل</div>
-                <button onclick="joinTeam('blue', 'ops')" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-lg text-xs transition shadow">JOIN TEAM</button>
+            <div class="bg-blue-950/40 border border-blue-900/30 p-3.5 rounded-xl space-y-2">
+                <div class="text-xs font-bold text-blue-300 flex justify-between"><span>OPERATIVES (العملاء)</span> <span id="blue-ops-count">0</span></div>
+                <div id="blue-ops-list" class="bg-gray-950 p-2.5 rounded-xl text-xs text-gray-400 min-h-[50px] flex flex-col gap-1">لا توجد عناصر</div>
+                <button onclick="joinTeam('blue', 'ops')" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">انضم كعمليات</button>
             </div>
 
             <!-- Spymasters -->
-            <div class="bg-blue-950/40 border border-blue-900/30 p-3 rounded-xl space-y-2">
-                <div class="text-xs font-bold text-blue-300 flex justify-between"><span>SPYMASTERS</span> <span id="blue-spy-count">0</span></div>
-                <div id="blue-spy-list" class="bg-gray-950 p-2 rounded-lg text-xs text-gray-500 min-h-[40px] flex items-center">لا يوجد قائد</div>
-                <button onclick="joinTeam('blue', 'spy')" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-lg text-xs transition shadow">JOIN TEAM</button>
+            <div class="bg-blue-950/40 border border-blue-900/30 p-3.5 rounded-xl space-y-2">
+                <div class="text-xs font-bold text-blue-300 flex justify-between"><span>SPYMASTERS (القائد)</span> <span id="blue-spy-count">0</span></div>
+                <div id="blue-spy-list" class="bg-gray-950 p-2.5 rounded-xl text-xs text-gray-400 min-h-[40px] flex flex-col gap-1">لا يوجد قائد</div>
+                <button onclick="joinTeam('blue', 'spy')" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">انضم كقائد</button>
             </div>
         </div>
 
-        <!-- المنتصف (لوحة اللعب أو شاشة الإعدادات) -->
-        <div class="lg:col-span-6 bg-gray-900/80 border border-gray-800 p-5 rounded-2xl shadow-2xl flex flex-col justify-center min-h-[500px]">
+        <!-- المنتصف (لوحة اللعب أو شاشة البداية) -->
+        <div class="lg:col-span-6 bg-gray-900/90 border border-gray-800 p-6 rounded-2xl shadow-2xl flex flex-col justify-center min-h-[580px]">
             
-            <!-- شاشة الإعدادات وقبل البدء -->
+            <!-- شاشة تجهيز اللعبة (Lobby) -->
             <div id="lobby-screen" class="space-y-6 text-center">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-gray-950 border-2 border-indigo-600 p-4 rounded-xl cursor-pointer shadow-lg">
-                        <div class="text-indigo-400 font-black text-base mb-1">CLASSIC</div>
-                        <div class="text-xs text-gray-400">4+ PLAYERS</div>
-                    </div>
-                    <div class="bg-gray-950 border border-gray-800 p-4 rounded-xl opacity-50">
-                        <div class="text-gray-400 font-black text-base mb-1">DUET</div>
-                        <div class="text-xs text-gray-500">2+ PLAYERS</div>
-                    </div>
+                <div class="w-20 h-20 bg-indigo-600/20 border-2 border-indigo-500 text-indigo-400 rounded-2xl mx-xl flex items-center justify-center text-3xl font-black shadow-xl mx-auto">د</div>
+                <div>
+                    <h2 class="text-2xl font-black text-white mb-1">لعبة كودنيمز - وزارة الدعثه</h2>
+                    <p class="text-xs text-gray-400">تجمع الكطيكات العليا، اختر فريقك ثم اضغط ابدأ اللعبة لتبدأ المتعة!</p>
                 </div>
 
-                <div class="bg-gray-950 border border-gray-800 p-3 rounded-xl text-xs text-gray-300 flex justify-between items-center">
-                    <span>WORD PACKS & LANGUAGE</span>
-                    <span class="bg-indigo-600 text-white px-2.5 py-1 rounded-lg font-bold">العربية (الدعثه)</span>
+                <div class="bg-gray-950 border border-gray-800 p-4 rounded-xl text-xs text-gray-300 flex justify-between items-center max-w-md mx-auto">
+                    <span>حزمة الكلمات:</span>
+                    <span class="bg-indigo-600 text-white px-3 py-1 rounded-lg font-bold">كلمات كميونتي الدعثه الخاصة</span>
                 </div>
 
-                <button onclick="startGame()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-3.5 rounded-xl text-base shadow-lg transition tracking-wide">
-                    START GAME
+                <button onclick="startTheGame()" class="w-full max-w-md mx-auto bg-green-600 hover:bg-green-500 text-white font-black py-4 rounded-2xl text-base shadow-2xl transition tracking-wide block">
+                    🚀 ابدأ اللعبة الآن (START GAME)
                 </button>
             </div>
 
-            <!-- لوحة الكلمات الحقيقية (تظهر بعد البدء) -->
+            <!-- لوحة الكلمات الحقيقية أثناء اللعب -->
             <div id="game-board-screen" class="hidden flex flex-col gap-4">
-                <div class="flex justify-between items-center px-2">
-                    <div class="text-blue-400 font-black text-lg">BLUE: <span id="blue-score">9</span></div>
-                    <button onclick="endTurn()" class="bg-gray-800 hover:bg-gray-700 text-xs px-4 py-1.5 rounded-lg border border-gray-700 font-bold">إنهاء الدور ⏭️</button>
-                    <div class="text-red-400 font-black text-lg">RED: <span id="red-score">8</span></div>
+                <div class="flex justify-between items-center bg-gray-950 px-4 py-3 rounded-xl border border-gray-800">
+                    <div class="text-blue-400 font-black text-sm">🔵 الأزرق: <span id="blue-score">9</span></div>
+                    <div id="current-turn-text" class="text-yellow-400 font-bold text-xs">دور: الفريق الأزرق</div>
+                    <button onclick="endTurn()" class="bg-gray-800 hover:bg-gray-700 text-xs px-3.5 py-1.5 rounded-lg border border-gray-700 font-bold transition">إنهاء الدور ⏭️</button>
+                    <div class="text-red-400 font-black text-sm">🔴 الأحمر: <span id="red-score">8</span></div>
                 </div>
+
+                <!-- تلميح القائد -->
+                <div id="clue-box" class="bg-gray-950 border border-indigo-500/30 p-3 rounded-xl text-center text-xs text-indigo-300">
+                    💡 القائد لم يعطِ تلميحاً بعد. انتظر القائد لتحديد الكلمات!
+                </div>
+
+                <!-- لوحة البطاقات الـ 25 -->
                 <div id="board" class="card-grid"></div>
             </div>
 
         </div>
 
         <!-- الفريق الأحمر (اليمين) -->
-        <div class="lg:col-span-3 bg-gray-900/70 border border-red-900/40 p-4 rounded-2xl shadow-xl flex flex-col gap-4">
-            <div class="bg-red-600 text-white font-black text-center py-2 rounded-xl text-sm shadow-md">RED TEAM</div>
+        <div class="lg:col-span-3 bg-gray-900/80 border border-red-900/50 p-5 rounded-2xl shadow-2xl flex flex-col gap-4">
+            <div class="bg-red-600 text-white font-black text-center py-2.5 rounded-xl text-sm shadow-lg flex justify-between px-4 items-center">
+                <span id="red-score-badge" class="bg-red-950 px-2.5 py-0.5 rounded-lg text-xs">نقاط: 8</span>
+                <span>RED TEAM</span>
+            </div>
             
             <!-- Operatives -->
-            <div class="bg-red-950/40 border border-red-900/30 p-3 rounded-xl space-y-2">
-                <div class="text-xs font-bold text-red-300 flex justify-between"><span>OPERATIVES</span> <span id="red-ops-count">0</span></div>
-                <div id="red-ops-list" class="bg-gray-950 p-2 rounded-lg text-xs text-gray-500 min-h-[40px] flex items-center">لا يوجد لاعبون</div>
-                <button onclick="joinTeam('red', 'ops')" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-lg text-xs transition shadow">JOIN TEAM</button>
+            <div class="bg-red-950/40 border border-red-900/30 p-3.5 rounded-xl space-y-2">
+                <div class="text-xs font-bold text-red-300 flex justify-between"><span>OPERATIVES (العملاء)</span> <span id="red-ops-count">0</span></div>
+                <div id="red-ops-list" class="bg-gray-950 p-2.5 rounded-xl text-xs text-gray-400 min-h-[50px] flex flex-col gap-1">لا توجد عناصر</div>
+                <button onclick="joinTeam('red', 'ops')" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">انضم كعمليات</button>
             </div>
 
             <!-- Spymasters -->
-            <div class="bg-red-950/40 border border-red-900/30 p-3 rounded-xl space-y-2">
-                <div class="text-xs font-bold text-red-300 flex justify-between"><span>SPYMASTERS</span> <span id="red-spy-count">0</span></div>
-                <div id="red-spy-list" class="bg-gray-950 p-2 rounded-lg text-xs text-gray-500 min-h-[40px] flex items-center">لا يوجد قائد</div>
-                <button onclick="joinTeam('red', 'spy')" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-lg text-xs transition shadow">JOIN TEAM</button>
+            <div class="bg-red-950/40 border border-red-900/30 p-3.5 rounded-xl space-y-2">
+                <div class="text-xs font-bold text-red-300 flex justify-between"><span>SPYMASTERS (القائد)</span> <span id="red-spy-count">0</span></div>
+                <div id="red-spy-list" class="bg-gray-950 p-2.5 rounded-xl text-xs text-gray-400 min-h-[40px] flex flex-col gap-1">لا يوجد قائد</div>
+                <button onclick="joinTeam('red', 'spy')" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">انضم كقائد</button>
             </div>
         </div>
 
     </main>
 
-    <!-- نافذة تحكم الأدمن السرية -->
+    <!-- نافذة الأدمن -->
     <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl w-full max-w-md shadow-2xl relative">
+        <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl w-full max-w-md shadow-2xl relative text-right" dir="rtl">
             <button onclick="closeAdminModal()" class="absolute top-4 left-4 text-gray-400 hover:text-white font-bold">✕</button>
             <div class="text-lg font-black mb-1 text-white">لوحة تحكم الأدمن السرية</div>
             <p class="text-xs text-gray-400 mb-4">الرقم السري الافتراضي: <span class="text-yellow-400 font-mono">aldahtha2026</span></p>
@@ -140,12 +154,13 @@
             <div id="admin-panel-content" class="hidden space-y-3 pt-3 border-t border-gray-800">
                 <label class="block text-xs text-gray-300">تعديل كلمات الكودنيمز (25 كلمة مفصولة بفاصلة ,):</label>
                 <textarea id="words-textarea" rows="4" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-2 text-xs text-white focus:outline-none"></textarea>
-                <button onclick="saveNewWords()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl text-xs transition">حفظ الكلمات وتحديث اللعبة 🔄</button>
+                <button onclick="saveNewWords()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl text-xs transition">حفظ وتحديث اللعبة فوراً 🔄</button>
             </div>
         </div>
     </div>
 
     <script>
+        let playerName = "أبو ناصر مجهد الكل";
         let defaultWords = [
             "الدعثه", "وزير الداخلية", "روم الفويس", "المخرب", "عضو مميز",
             "أدمن", "عميل سري", "ميوت", "ريأكشن", "طفطفة",
@@ -154,46 +169,125 @@
             "سحب جوائز", "هاتفك", "عقوبات", "كلمة السر", "تكتيك"
         ];
 
+        let teams = {
+            blue: { ops: [], spy: [] },
+            red: { ops: [], spy: [] }
+        };
+
         let gameState = {
-            words: [...defaultWords],
+            words: [],
+            types: [], // 'blue', 'red', 'neutral', 'assassin'
             revealed: Array(25).fill(false),
             blueScore: 9,
             redScore: 8,
             turn: 'blue'
         };
 
-        function startGame() {
+        function changeNickname() {
+            let name = prompt("أدخل اسمك الجديد في السيرفر:", playerName);
+            if(name && name.trim() !== "") {
+                playerName = name.trim();
+                document.getElementById('current-player-name').innerText = playerName;
+            }
+        }
+
+        function joinTeam(team, role) {
+            // إزالة اللاعب من أي فريق سابق
+            teams.blue.ops = teams.blue.ops.filter(n => n !== playerName);
+            teams.blue.spy = teams.blue.spy.filter(n => n !== playerName);
+            teams.red.ops = teams.red.ops.filter(n => n !== playerName);
+            teams.red.spy = teams.red.spy.filter(n => n !== playerName);
+
+            // إضافته للفريق والوضع الجديد
+            teams[team][role].push(playerName);
+            updateTeamsUI();
+        }
+
+        function updateTeamsUI() {
+            document.getElementById('blue-ops-list').innerHTML = teams.blue.ops.length ? teams.blue.ops.map(n => `<span class="bg-blue-900/50 px-2 py-1 rounded text-white font-bold">👤 ${n}</span>`).join('') : 'لا توجد عناصر';
+            document.getElementById('blue-spy-list').innerHTML = teams.blue.spy.length ? teams.blue.spy.map(n => `<span class="bg-blue-900/50 px-2 py-1 rounded text-white font-bold">🕵️‍♂️ ${n}</span>`).join('') : 'لا يوجد قائد';
+            document.getElementById('blue-ops-count').innerText = teams.blue.ops.length;
+            document.getElementById('blue-spy-count').innerText = teams.blue.spy.length;
+
+            document.getElementById('red-ops-list').innerHTML = teams.red.ops.length ? teams.red.ops.map(n => `<span class="bg-red-900/50 px-2 py-1 rounded text-white font-bold">👤 ${n}</span>`).join('') : 'لا توجد عناصر';
+            document.getElementById('red-spy-list').innerHTML = teams.red.spy.length ? teams.red.spy.map(n => `<span class="bg-red-900/50 px-2 py-1 rounded text-white font-bold">🕵️‍♂️ ${n}</span>`).join('') : 'لا يوجد قائد';
+            document.getElementById('red-ops-count').innerText = teams.red.ops.length;
+            document.getElementById('red-spy-count').innerText = teams.red.spy.length;
+        }
+
+        function startTheGame() {
+            // خلط الكلمات وتوزيع الأنواع عشوائياً (9 للأزرق، 8 للأحمر، 1 قاتل، 7 حيادي)
+            let shuffledWords = [...defaultWords].sort(() => Math.random() - 0.5);
+            let types = Array(25).fill('neutral');
+            
+            // تعيين 9 أزرق
+            for(let i=0; i<9; i++) types[i] = 'blue';
+            // تعيين 8 أحمر
+            for(let i=9; i<17; i++) types[i] = 'red';
+            // تعيين 1 قاتل
+            types[17] = 'assassin';
+            // الباقي حيادي (متروكة كما هي)
+            
+            types.sort(() => Math.random() - 0.5);
+
+            gameState.words = shuffledWords;
+            gameState.types = types;
+            gameState.revealed = Array(25).fill(false);
+            gameState.blueScore = 9;
+            gameState.redScore = 8;
+            gameState.turn = 'blue';
+
             document.getElementById('lobby-screen').classList.add('hidden');
             document.getElementById('game-board-screen').classList.remove('hidden');
+            document.getElementById('top-status').innerText = "وزارة الدعثه الداخلية - الجلسة جارية 🎮";
+            
             renderBoard();
         }
 
         function renderBoard() {
             const board = document.getElementById('board');
             board.innerHTML = '';
+            
             gameState.words.forEach((word, index) => {
                 const card = document.createElement('div');
-                card.className = `codename-card ${gameState.revealed[index] ? 'revealed' : ''}`;
+                let className = "codename-card";
+                
+                if (gameState.revealed[index]) {
+                    let type = gameState.types[index];
+                    if (type === 'blue') className += " revealed-blue";
+                    else if (type === 'red') className += " revealed-red";
+                    else if (type === 'assassin') className += " revealed-assassin";
+                    else className += " revealed-neutral";
+                }
+
+                card.className = className;
                 card.innerText = word;
+                
                 card.onclick = () => {
-                    if(!gameState.revealed[index]) {
+                    if (!gameState.revealed[index]) {
                         gameState.revealed[index] = true;
+                        let type = gameState.types[index];
+                        if (type === 'blue') {
+                            // تم اكتشاف كلمة زرقاء
+                        } else if (type === 'red') {
+                            // تم اكتشاف كلمة حمراء
+                        } else if (type === 'assassin') {
+                            alert('⚠️ كبففف! ضغطت على كلمة الاغتيال (القاتل)! انتهت اللعبة!');
+                        }
                         renderBoard();
                     }
                 };
                 board.appendChild(card);
             });
+
             document.getElementById('blue-score').innerText = gameState.blueScore;
             document.getElementById('red-score').innerText = gameState.redScore;
-        }
-
-        function joinTeam(team, role) {
-            alert(`تم الانضمام بنجاح للفريق ${team === 'blue' ? 'الأزرق' : 'الأحمر'} بدور ${role === 'ops' ? 'عضو فريق' : 'قائد'}`);
+            document.getElementById('current-turn-text').innerText = `دور: ${gameState.turn === 'blue' ? 'الفريق الأزرق 🔵' : 'الفريق الأحمر 🔴'}`;
         }
 
         function endTurn() {
             gameState.turn = gameState.turn === 'blue' ? 'red' : 'blue';
-            alert(`انتقل الدور إلى الفريق ${gameState.turn === 'blue' ? 'الأزرق' : 'الأحمر'}`);
+            renderBoard();
         }
 
         function openAdminModal() {
@@ -227,11 +321,9 @@
                 return;
             }
             defaultWords = wordsList;
-            gameState.words = [...defaultWords].sort(() => Math.random() - 0.5);
-            gameState.revealed = Array(25).fill(false);
-            renderBoard();
+            startTheGame();
             closeAdminModal();
-            alert('تم تحديث الكلمات وبدء اللعبة بنجاح!');
+            alert('تم تحديث الكلمات وبدء راوند جديد بنجاح!');
         }
     </script>
 </body>
