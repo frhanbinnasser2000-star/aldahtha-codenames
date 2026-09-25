@@ -2,51 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Codenames Online - سيرفر الدعثه</title>
+    <title>Codenames Online</title>
     <script src="/socket.io/socket.io.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; background: #121212; color: #fff; text-align: center; margin: 0; padding: 15px; user-select: none; }
+        body { font-family: Arial, sans-serif; background: #121212; color: #fff; text-align: center; margin: 0; padding: 10px; user-select: none; }
         
-        /* الهيدر العلوي */
-        .top-bar { display: flex; justify-content: space-between; align-items: center; max-width: 1100px; margin: 0 auto 10px auto; padding: 0 10px; }
-        .btn-top { background: #222; color: #fff; border: 1px solid #444; padding: 6px 15px; border-radius: 20px; font-size: 13px; cursor: pointer; font-weight: bold; }
+        /* الهيدر العلوي تماماً مثل الموقع الأصلي */
+        .top-bar { display: flex; justify-content: space-between; align-items: center; max-width: 1050px; margin: 0 auto 8px auto; padding: 0 5px; }
+        .btn-top { background: #1e1e1e; color: #fff; border: 1px solid #333; padding: 5px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; font-weight: bold; }
         
-        /* قسم المتفرجون / اسم اللاعب */
-        .spectators-section { max-width: 700px; margin: 0 auto 15px auto; background: #1a1a1a; border-radius: 10px; padding: 8px; border: 1px solid #333; }
-        .spectators-title { font-size: 12px; color: #888; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }
-        .player-inputs { display: flex; justify-content: center; gap: 10px; }
-        .player-inputs input { background: #2a2a2a; border: 1px solid #444; color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 13px; text-align: center; outline: none; }
+        /* قسم المتفرجون واسم اللاعب */
+        .spectators-section { max-width: 1050px; margin: 0 auto 10px auto; background: #181818; border-radius: 10px; padding: 8px; border: 1px solid #282828; display: flex; align-items: center; justify-content: center; gap: 15px; }
+        .spectators-title { font-size: 11px; color: #777; text-transform: uppercase; letter-spacing: 1px; }
+        .player-inputs { display: flex; gap: 8px; }
+        .player-inputs input { background: #222; border: 1px solid #333; color: #fff; padding: 5px 12px; border-radius: 6px; font-size: 12px; text-align: center; outline: none; width: 160px; }
 
-        /* الحاوية الرئيسية للوبي */
-        .lobby-box { max-width: 1100px; margin: 0 auto; background: #1c1c1c; border-radius: 12px; padding: 20px; border: 1px solid #333; display: flex; justify-content: space-between; gap: 15px; }
+        /* الحاوية الرئيسية للوبي (أزرق يسار، أحمر يمين تماماً كالأصلي) */
+        .lobby-box { max-width: 1050px; margin: 0 auto; background: #181818; border-radius: 12px; padding: 15px; border: 1px solid #282828; display: flex; justify-content: space-between; gap: 12px; }
         
         /* أعمدة الفرق */
-        .team-side { width: 280px; display: flex; flex-direction: column; gap: 12px; }
-        .team-header { background: #333; color: #fff; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 15px; letter-spacing: 1px; }
+        .team-side { width: 260px; display: flex; flex-direction: column; gap: 10px; }
+        .team-header { background: #222; color: #fff; padding: 8px; border-radius: 6px; font-weight: bold; font-size: 14px; letter-spacing: 1px; text-align: center; border: 1px solid #333; }
         
-        .role-card { background: #262626; border-radius: 10px; padding: 12px; border: 1px solid #383838; text-align: left; }
-        .role-name { font-size: 11px; color: #aaa; font-weight: bold; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .role-card { background: #222; border-radius: 8px; padding: 10px; border: 1px solid #333; text-align: left; }
+        .role-name { font-size: 11px; color: #888; font-weight: bold; margin-bottom: 6px; letter-spacing: 0.5px; }
         
-        .blue-border { border-color: #2196F3; }
-        .blue-header { background: #1976D2; }
-        
-        .red-border { border-color: #F44336; }
-        .red-header { background: #D32F2F; }
+        .blue-header { background: #1a73e8; border-color: #1a73e8; }
+        .red-header { background: #ea4335; border-color: #ea4335; }
 
-        .btn-join { background: #4CAF50; color: white; border: none; width: 100%; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; transition: 0.2s; }
-        .btn-join:hover { background: #43A047; }
+        .btn-join { background: #34a853; color: white; border: none; width: 100%; padding: 8px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; transition: 0.2s; }
+        .btn-join:hover { background: #2e8b57; }
 
-        /* القسم الأوسط */
-        .center-settings { flex: 1; background: #222; border-radius: 10px; padding: 15px; border: 1px solid #333; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
-        .settings-title { font-size: 13px; color: #aaa; font-weight: bold; letter-spacing: 1px; margin-bottom: 10px; }
+        /* القسم الأوسط (إعدادات اللعبة كما في الصورة تماماً) */
+        .center-settings { flex: 1; background: #1e1e1e; border-radius: 8px; padding: 12px; border: 1px solid #2c2c2c; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; }
+        .settings-title { font-size: 11px; color: #777; font-weight: bold; letter-spacing: 1px; margin-bottom: 6px; text-align: center; }
         
-        .setting-card { background: #2b2b2b; border: 1px solid #3d3d3d; border-radius: 8px; padding: 10px; margin-bottom: 8px; text-align: left; }
-        .setting-label { font-size: 11px; color: #888; margin-bottom: 4px; text-transform: uppercase; }
-        .setting-value { font-size: 14px; font-weight: bold; color: #fff; }
+        .setting-row { display: flex; gap: 8px; }
+        .setting-box { background: #252525; border: 1px solid #333; border-radius: 6px; padding: 8px; flex: 1; text-align: left; }
+        .setting-label { font-size: 10px; color: #777; margin-bottom: 3px; text-transform: uppercase; }
+        .setting-value { font-size: 12px; font-weight: bold; color: #ddd; }
 
         /* زر البدء الكبير بالأسفل */
-        .btn-start { background: #4CAF50; color: white; border: none; width: 100%; padding: 14px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.2s; }
-        .btn-start:hover { background: #43A047; }
+        .btn-start { background: #34a853; color: white; border: none; width: 100%; padding: 12px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; letter-spacing: 1px; transition: 0.2s; }
+        .btn-start:hover { background: #2e8b57; }
 
         /* لوحة اللعبة الداخلية */
         #game-board { display: none; max-width: 900px; margin: 20px auto; }
@@ -54,23 +52,23 @@
         .card { background: #2f3136; padding: 25px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; user-select: none; transition: 0.2s; color: #fff; }
         .card:hover { background: #40444b; }
         
-        .card.red-revealed { background: #D32F2F !important; }
-        .card.blue-revealed { background: #1976D2 !important; }
+        .card.red-revealed { background: #ea4335 !important; }
+        .card.blue-revealed { background: #1a73e8 !important; }
         .card.black-revealed { background: #000 !important; color: #ff4444; border: 2px solid #ff0000; }
-        .card.neutral-revealed { background: #555 !important; color: #aaa; }
+        .card.neutral-revealed { background: #444 !important; color: #aaa; }
         
-        .spymaster-red { border: 3px solid #D32F2F; }
-        .spymaster-blue { border: 3px solid #1976D2; }
+        .spymaster-red { border: 3px solid #ea4335; }
+        .spymaster-blue { border: 3px solid #1a73e8; }
         .spymaster-black { border: 3px solid #000; }
-        .spymaster-neutral { border: 3px solid #555; }
+        .spymaster-neutral { border: 3px solid #444; }
     </style>
 </head>
 <body>
 
-    <!-- الهيدر العلوي المطابق للأصلي -->
+    <!-- الهيدر العلوي الأصلي -->
     <div class="top-bar">
         <button class="btn-top">Admin 👤 1</button>
-        <div></div>
+        <div style="font-weight: bold; font-size: 14px; letter-spacing: 1px; color: #ccc;">Codenames Online</div>
         <div>
             <button class="btn-top">News</button>
             <button class="btn-top">Rules</button>
@@ -81,7 +79,7 @@
     <!-- لوحة اللوبي الرئيسية -->
     <div id="setup">
         <div class="spectators-section">
-            <div class="spectators-title">Player Info & Room</div>
+            <div class="spectators-title">SPECTATORS 👁️</div>
             <div class="player-inputs">
                 <input type="text" id="username" placeholder="اسمك في السيرفر..." required>
                 <input type="text" id="room" placeholder="اسم الغرفة (مثال: da3thah)" required>
@@ -89,29 +87,35 @@
         </div>
 
         <div class="lobby-box">
-            <!-- الفريق الأزرق (يسار) -->
+            <!-- الفريق الأزرق (يسار تماماً مثل الصورة الأصلية)[cite: 7] -->
             <div class="team-side">
                 <div class="team-header blue-header">BLUE TEAM</div>
-                <div class="role-card blue-border">
+                <div class="role-card">
                     <div class="role-name">OPERATIVES</div>
                     <button class="btn-join" onclick="setTeamAndRole('blue', 'operative')">JOIN TEAM</button>
                 </div>
-                <div class="role-card blue-border">
+                <div class="role-card">
                     <div class="role-name">SPYMASTERS</div>
                     <button class="btn-join" onclick="setTeamAndRole('blue', 'spymaster')">JOIN TEAM</button>
                 </div>
             </div>
 
-            <!-- المنتصف (الإعدادات) -->
+            <!-- المنتصف (إعدادات اللعبة المطابقة للصورة)[cite: 7] -->
             <div class="center-settings">
                 <div>
                     <div class="settings-title">GAME SETTINGS</div>
-                    <div class="setting-card">
-                        <div class="setting-label">Selected Role</div>
-                        <div class="setting-value" id="current-selection" style="color: #4CAF50;">BLUE TEAM - OPERATIVE</div>
+                    <div class="setting-row">
+                        <div class="setting-box" style="flex: 1.2;">
+                            <div class="setting-label">SELECTED ROLE</div>
+                            <div class="setting-value" id="current-selection" style="color: #34a853;">BLUE TEAM - OPERATIVE</div>
+                        </div>
+                        <div class="setting-box" style="flex: 0.8;">
+                            <div class="setting-label">TIMER</div>
+                            <div class="setting-value">OFF</div>
+                        </div>
                     </div>
-                    <div class="setting-card">
-                        <div class="setting-label">Word Packs & Language</div>
+                    <div class="setting-box" style="margin-top: 8px;">
+                        <div class="setting-label">WORD PACKS & LANGUAGE</div>
                         <div class="setting-value">Codenames (Da3thah Edition)</div>
                     </div>
                 </div>
@@ -120,14 +124,14 @@
                 </div>
             </div>
 
-            <!-- الفريق الأحمر (يمين) -->
+            <!-- الفريق الأحمر (يمين تماماً مثل الصورة الأصلية)[cite: 7] -->
             <div class="team-side">
                 <div class="team-header red-header">RED TEAM</div>
-                <div class="role-card red-border">
+                <div class="role-card">
                     <div class="role-name">OPERATIVES</div>
                     <button class="btn-join" onclick="setTeamAndRole('red', 'operative')">JOIN TEAM</button>
                 </div>
-                <div class="role-card red-border">
+                <div class="role-card">
                     <div class="role-name">SPYMASTERS</div>
                     <button class="btn-join" onclick="setTeamAndRole('red', 'spymaster')">JOIN TEAM</button>
                 </div>
@@ -135,10 +139,10 @@
         </div>
     </div>
 
-    <!-- لوحة اللعبة الفعلية -->
+    <!-- لوحة اللعبة الداخلية -->
     <div id="game-board">
         <h3 id="status-text" style="margin-bottom: 15px;"></h3>
-        <button onclick="resetGame()" style="margin-bottom: 15px; background: #D32F2F; color:#fff; cursor:pointer; padding:8px 15px; border-radius:5px; border:none; font-weight:bold;">RESET GAME</button>
+        <button onclick="resetGame()" style="margin-bottom: 15px; background: #ea4335; color:#fff; cursor:pointer; padding:8px 15px; border-radius:5px; border:none; font-weight:bold;">RESET GAME</button>
         <div class="grid" id="grid"></div>
     </div>
 
@@ -175,7 +179,7 @@
             const grid = document.getElementById('grid');
             grid.innerHTML = '';
 
-            document.getElementById('status-textinnerHTML = `Turn: <span style="color:${game.turn === 'red' ? '#F44336' : '#2196F3'}">${game.turn.toUpperCase()}</span> | Red Left: ${game.scores.red} | Blue Left: ${game.scores.blue}`;
+            document.getElementById('status-text').innerHTML = `Turn: <span style="color:${game.turn === 'red' ? '#ea4335' : '#1a73e8'}">${game.turn.toUpperCase()}</span> | Red Left: ${game.scores.red} | Blue Left: ${game.scores.blue}`;
 
             if (game.gameOver) {
                 alert('Game Over! Winner: ' + game.winner);
