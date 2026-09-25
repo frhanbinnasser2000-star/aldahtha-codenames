@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>كود نيمز - سيرفر الدعثه</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { font-family: Tahoma, sans-serif; background: #121212; color: #fff; text-align: center; margin: 0; padding: 20px; }
+        #setup { margin-top: 100px; }
+        input, select, button { padding: 10px; margin: 5px; border-radius: 5px; border: none; font-size: 16px; }
+        button { background: #5865F2; color: white; cursor: pointer; }
+        #game-board { display: none; margin-top: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 800px; margin: 0 auto; }
+        .card { background: #2f3136; padding: 25px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 18px; user-select: none; transition: 0.2s; }
+        .card:hover { background: #40444b; }
+        /* ألوان رؤساء التجسس والبطاقات المكشوفة */
+        .card.red-revealed { background: #ed4245 !important; }
+        .card.blue-revealed { background: #5865F2 !important; }
+        .card.black-revealed { background: #000 !important; color: #ff0000; }
+        .card.neutral-revealed { background: #4f545c !important; }
+        
+        /* رؤية رئيس التجسس (شفافة) */
+        .spymaster-red { border: 3px solid #ed4245; }
+        .spymaster-blue { border: 3px solid #5865F2; }
+        .spymaster-black { border: 3px solid #000; }
+        .spymaster-neutral { border: 3px solid #4f545c; }
+    </style>
+</head>
+<body>
+
+    <div id="setup">
+        <h2>لعبة كود نيمز - حقوق سيرفر الدعثه</h2>
+        <input type="text" id="username" placeholder="اسمك في السيرفر"><br>
+        <input type="text" id="room" placeholder="اسم الغرفة (مثال: da3thah-room)"><br>
+        <select id="team">
+            <option value="red">الفريق الأحمر</option>
+            <option value="blue">الفريق الأزرق</option>
+        </select>
+        <select id="role">
+            <option value="operative">عضو فريق (العملاء)</option>
+            <option value="spymaster">رئيس التجسس (Spymaster)</option>
+        </select><br>
+        <button onclick="joinGame()">دخول اللعبة</button>
+    </div>
+
+    <div id="game-board">
+        <h3 id="status-text"></h3>
+        <button onclick="resetGame()" style="margin-bottom: 15px; background: #ed4245;">إعادة تشغيل الجيم</button>
+        <div class="grid" id="grid"></div>
+    </div>
+
+    <script>
+        const socket = io();
+        let myRole = '';
+        let myTeam = '';
+
+        function joinGame() {
+            const username = document.getElementById('username').value;
+            const room = document.getElementById('room').value;
+            myTeam = document.getElementById('team').value;
+            myRole = document.getElementById('role').value;
+
+            if (!username || !room) {
+                alert('الرجاء إدخال الاسم ورقم الغرفة!');
+                return;
+            }
+
+            document.getElementById('setup').style.display = 'none';
+            document.getElementById('game-board').style.display = 'block';
+
+            socket.emit('joinRoom', { room, username, team: myTeam, role: myRole });
+        }
+
+        socket.on('gameState', (game) => {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+
+            document.getElementById('status-text').innerHTML = `دور الفريق: <span style="color:${game.turn === 'red' ? '#ed4245' : '#5865F2'}">${game.turn === 'red' ? 'الأحمر' : 'الأزرق'}</span> | النقاط المتبقية - أحمر: ${game.scores.red} | أزرق: ${game.scores.blue}`;
+
+            if (game.gameOver) {
+                alert('انتهت اللعبة! الفائز هو: ' + game.winner);
+            }
+
+            game.board.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerText = item.word;
+
+                // إذا كشفت البطاقة مسبقاً
+                if (item.revealed) {
+                    card.classList.add(`${item.type}-revealed`);
+                } else if (myRole === 'spymaster') {
+                    // رئيس التجسس يرى ألوان جميع الكلمات بحدود واضحة
+                    card.classList.add(`spymaster-${item.type}`);
+                }
+
+                card.onclick = () => {
+                    if (myRole === 'operative' && !item.revealed && !game.gameOver) {
+                        socket.emit('selectCard', index);
+                    }
+                };
+
+                grid.appendChild(card);
+            });
+        });
+
+        function resetGame() {
+            socket.emit('resetGame');
+        }
+    </script>
+</body>
+</html>
