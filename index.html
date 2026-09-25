@@ -23,21 +23,22 @@
                 <p class="text-xs text-gray-400">النسخة الرسمية للكميونتي والكتيكات العليا</p>
             </div>
         </div>
-        <div class="flex items-center gap-4 bg-gray-950 px-4 py-2 rounded-xl border border-gray-800 text-sm">
-            <span class="text-blue-400 font-bold">الفريق الأزرق: <span id="blue-score" class="text-lg">9</span> متبقي</span>
-            <span class="text-gray-600">|</span>
-            <span class="text-red-400 font-bold">الفريق الأحمر: <span id="red-score" class="text-lg">8</span> متبقي</span>
+        <div class="flex items-center gap-4">
+            <div class="bg-gray-950 px-4 py-2 rounded-xl border border-gray-800 text-sm">
+                <span class="text-blue-400 font-bold">الأزرق: <span id="blue-score">9</span></span>
+                <span class="text-gray-600"> | </span>
+                <span class="text-red-400 font-bold">الأحمر: <span id="red-score">8</span></span>
+            </div>
+            <button onclick="openAdminLogin()" class="bg-red-600/20 border border-red-500/50 hover:bg-red-600 text-red-300 hover:text-white px-3 py-2 rounded-xl text-xs font-bold transition">🔒 لوحة التحكم</button>
         </div>
     </header>
 
     <!-- محتوى اللعبة -->
     <main class="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-6 max-w-7xl mx-auto w-full">
-        <!-- لوحة البطاقات -->
         <div class="lg:col-span-3 bg-gray-900/50 p-4 md:p-6 rounded-2xl border border-gray-800/80 shadow-2xl">
             <div id="board" class="card-grid"></div>
         </div>
 
-        <!-- اللوحة الجانبية للاعب -->
         <div class="space-y-4">
             <div class="bg-gray-900/80 border border-gray-800 p-4 rounded-2xl shadow-xl">
                 <h2 class="font-bold text-base mb-3 text-indigo-400">👤 ملف اللاعب الحالي</h2>
@@ -69,13 +70,34 @@
         </div>
     </main>
 
+    <!-- نافذة تسجيل الدخول للوحة التحكم (مخفية افتراضياً) -->
+    <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl w-full max-w-md shadow-2xl relative">
+            <button onclick="closeAdminLogin()" class="absolute top-4 left-4 text-gray-400 hover:text-white font-bold">✕</button>
+            <div class="w-12 h-12 bg-red-600/20 border border-red-500 text-red-400 rounded-xl flex items-center justify-center mb-3 text-xl font-bold">🔒</div>
+            <h2 class="text-lg font-black mb-1 text-white">منطقة الإدارة السرية</h2>
+            <p class="text-xs text-gray-400 mb-4">أدخل الرقم السري للتحكم باللعبة (الافتراضي: aldahtha2026)</p>
+            <input type="password" id="admin-pass" placeholder="الرقم السري" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-center text-white text-sm mb-3 focus:outline-none focus:border-red-500">
+            <button onclick="verifyAdmin()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 rounded-xl transition text-sm">دخول المشرف</button>
+            
+            <div id="admin-controls" class="hidden mt-6 pt-4 border-t border-gray-800 space-y-3">
+                <h3 class="font-bold text-sm text-indigo-400">⚡ خيارات التحكم:</h3>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">تغيير الكلمات (افصل بفاصلة ,):</label>
+                    <textarea id="custom-words-input" rows="3" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-2 text-xs text-white focus:outline-none"></textarea>
+                </div>
+                <button onclick="applyCustomWords()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl transition text-xs">تحديث الكلمات وبدء راوند جديد 🔄</button>
+            </div>
+        </div>
+    </div>
+
     <!-- الفوتر -->
     <footer class="text-center text-xs text-gray-500 mt-6">
         وزارة الدعثه الداخلية © 2026 - جميع الحقوق محفوظة للكميونتي الأسطوري
     </footer>
 
     <script>
-        const defaultWords = [
+        let defaultWords = [
             "الدعثه", "وزير الداخلية", "روم الفويس", "المخرب", "عضو مميز",
             "أدمن", "عميل سري", "ميوت", "ريأكشن", "طفطفة",
             "البوت الأسطوري", "عفو ملكي", "سبام", "رآنك", "أوبن ميك",
@@ -120,6 +142,44 @@
         function endTurn() {
             gameState.currentTeam = gameState.currentTeam === 'blue' ? 'red' : 'blue';
             alert('انتقل الدور إلى الفريق الآخر!');
+        }
+
+        function openAdminLogin() {
+            document.getElementById('admin-modal').classList.remove('hidden');
+            document.getElementById('admin-modal').classList.add('flex');
+            document.getElementById('custom-words-input').value = defaultWords.join(', ');
+        }
+
+        function closeAdminLogin() {
+            document.getElementById('admin-modal').classList.add('hidden');
+            document.getElementById('admin-modal').classList.remove('flex');
+            document.getElementById('admin-controls').classList.add('hidden');
+            document.getElementById('admin-pass').value = '';
+        }
+
+        function verifyAdmin() {
+            const pass = document.getElementById('admin-pass').value;
+            if(pass === "aldahtha2026") {
+                document.getElementById('admin-controls').classList.remove('hidden');
+                alert('تم تسجيل الدخول بنجاح كمسؤول!');
+            } else {
+                alert('الرقم السري خاطئ!');
+            }
+        }
+
+        function applyCustomWords() {
+            const input = document.getElementById('custom-words-input').value;
+            const newWords = input.split(',').map(w => w.trim()).filter(w => w.length > 0);
+            if(newWords.length < 25) {
+                alert('الرجاء إدخال 25 كلمة على الأقل لتعبئة اللوحة!');
+                return;
+            }
+            defaultWords = newWords;
+            gameState.words = [...defaultWords].sort(() => Math.random() - 0.5);
+            gameState.revealed = Array(25).fill(false);
+            renderBoard();
+            closeAdminLogin();
+            alert('تم تحديث الكلمات وبدء راوند جديد بنجاح!');
         }
 
         renderBoard();
