@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كودنيمز - كميونتي الدعثه</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cairo & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+        }
+        .glow-blue {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+        .glow-red {
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+        }
+        .card-inner {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-amber-500 selection:text-black">
+
+    <!-- Header -->
+    <header class="bg-slate-900/80 backdrop-blur border-b border-slate-800 sticky top-0 z-50 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-red-600 flex items-center justify-center font-black text-xl shadow-lg shadow-amber-500/20">
+                    د
+                </div>
+                <div>
+                    <h1 class="text-xl font-black tracking-wider bg-gradient-to-r from-amber-400 via-rose-400 to-red-500 bg-clip-text text-transparent">
+                        وزارة الدعثه الداخلية - كودنيمز
+                    </h1>
+                    <p class="text-xs text-slate-400">النسخة الرسمية للكميونتي والتكتيكات العليا</p>
+                </div>
+            </div>
+
+            <!-- Game Status & Scoreboard -->
+            <div id="scoreboard" class="flex items-center gap-4 bg-slate-950/60 border border-slate-800/80 px-4 py-2 rounded-xl text-sm">
+                <div class="flex items-center gap-2 text-blue-400 font-bold">
+                    <span class="w-3 h-3 rounded-full bg-blue-500 animate-pulse"></span>
+                    <span>الفريق الأزرق: <span id="blue-score">8</span> متبقي</span>
+                </div>
+                <div class="h-4 w-px bg-slate-800"></div>
+                <div class="flex items-center gap-2 text-red-400 font-bold">
+                    <span class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
+                    <span>الفريق الأحمر: <span id="red-score">8</span> متبقي</span>
+                </div>
+                <div class="h-4 w-px bg-slate-800"></div>
+                <div id="turn-indicator" class="px-3 py-1 rounded-lg bg-blue-900/40 text-blue-300 font-semibold text-xs border border-blue-700/50">
+                    دور: الفريق الأزرق
+                </div>
+            </div>
+
+            <!-- Controls & Settings -->
+            <div class="flex items-center gap-2">
+                <button onclick="toggleRoleView()" id="role-toggle-btn" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition">
+                    👁️ تبديل وضع القائد (Spymaster)
+                </button>
+                <button onclick="openCustomWordsModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition">
+                    📝 تخصيص الكلمات
+                </button>
+                <button onclick="resetGame()" class="px-3 py-1.5 bg-red-950/50 hover:bg-red-900/60 text-red-300 text-xs font-semibold rounded-lg border border-red-800/50 transition">
+                    🔄 إعادة تشغيل
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+
+        <!-- Sidebar: Players & Team Management -->
+        <div class="lg:col-span-1 space-y-4">
+            <!-- Player Info Box -->
+            <div class="bg-slate-900/60 backdrop-blur border border-slate-800 rounded-2xl p-4 shadow-xl">
+                <h2 class="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2">
+                    <span>👤</span> ملف اللاعب الحالي
+                </h2>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">اسمك في السيرفر:</label>
+                        <input type="text" id="player-name-input" value="مخرب الدعثه" onchange="updatePlayerName(this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500 transition">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">انضم للفريق:</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="joinTeam('blue')" id="btn-join-blue" class="py-2 px-3 bg-blue-950/40 hover:bg-blue-900/50 border border-blue-800/60 text-blue-400 text-xs font-bold rounded-xl transition">
+                                الفريق الأزرق
+                            </button>
+                            <button onclick="joinTeam('red')" id="btn-join-red" class="py-2 px-3 bg-red-950/40 hover:bg-red-900/50 border border-red-800/60 text-red-400 text-xs font-bold rounded-xl transition">
+                                الفريق الأحمر
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">الدور:</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setRole('operative')" id="btn-role-op" class="py-1.5 px-2 bg-slate-800 text-slate-200 text-xs rounded-lg border border-slate-700 font-semibold transition">
+                                عميل ميداني
+                            </button>
+                            <button onclick="setRole('spymaster')" id="btn-role-spy" class="py-1.5 px-2 bg-slate-900 text-slate-400 text-xs rounded-lg border border-slate-800 font-semibold transition">
+                                قائد (Spymaster)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clue Box / Timer -->
+            <div class="bg-slate-900/60 backdrop-blur border border-slate-800 rounded-2xl p-4 shadow-xl">
+                <h2 class="text-sm font-bold text-slate-300 mb-2 flex items-center gap-2">
+                    <span>💡</span> تلميح القائد الحالي
+                </h2>
+                <div id="clue-display" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-center mb-3">
+                    <p class="text-xs text-slate-400">القائد لم يعطِ تلميحًا بعد</p>
+                    <p id="current-clue-text" class="text-lg font-black text-amber-400 mt-1">-</p>
+                </div>
+                <!-- Spymaster Clue Input (Visible only if Spymaster) -->
+                <div id="spymaster-control-panel" class="hidden space-y-2 border-t border-slate-800 pt-3">
+                    <p class="text-xs font-bold text-amber-400">لوحة تحكم القائد:</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="clue-word" placeholder="كلمة التلميح" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:border-amber-500">
+                        <input type="number" id="clue-count" placeholder="العدد" min="1" max="9" value="1" class="w-16 bg-slate-950 border border-slate-800 rounded-xl px-2 py-1.5 text-xs text-center focus:outline-none focus:border-amber-500">
+                    </div>
+                    <button onclick="submitClue()" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold py-2 rounded-xl text-xs transition shadow-lg shadow-amber-600/20">
+                        إرسال التلميح للفريق
+                    </button>
+                </div>
+            </div>
+
+            <!-- Community Players Online List -->
+            <div class="bg-slate-900/60 backdrop-blur border border-slate-800 rounded-2xl p-4 shadow-xl">
+                <h2 class="text-sm font-bold text-slate-300 mb-2 flex items-center justify-between">
+                    <span>🟢 الأعضاء المتواجدون</span>
+                    <span id="online-count" class="text-xs bg-slate-800 px-2 py-0.5 rounded-full text-slate-400">3 متصل</span>
+                </h2>
+                <ul id="players-list" class="space-y-1.5 text-xs text-slate-300 max-h-36 overflow-y-auto">
+                    <li class="flex items-center justify-between bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800/50">
+                        <span>مخرب الدعثه <span class="text-[10px] text-blue-400">(أزرق)</span></span>
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    </li>
+                    <li class="flex items-center justify-between bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800/50">
+                        <span>وزير السيرفر <span class="text-[10px] text-red-400">(أحمر)</span></span>
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    </li>
+                    <li class="flex items-center justify-between bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800/50">
+                        <span>مشرف الرومات <span class="text-[10px] text-slate-400">(بدون فريق)</span></span>
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Center: Game Board (5x5) -->
+        <div class="lg:col-span-3 flex flex-col items-center">
+            <div id="board-grid" class="grid grid-cols-5 gap-3 w-full max-w-4xl aspect-square md:aspect-auto">
+                <!-- Cards will be injected dynamically via JavaScript -->
+            </div>
+
+            <!-- End Turn Button -->
+            <div class="mt-6 flex gap-4 w-full max-w-md">
+                <button onclick="endTurn()" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 font-bold py-3 px-6 rounded-xl text-sm transition shadow-lg">
+                    إنهاء الدور ⏭️
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Custom Words Modal -->
+    <div id="custom-words-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold text-amber-400">تخصيص كلمات كميونتي الدعثه</h3>
+                <button onclick="closeCustomWordsModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+            </div>
+            <p class="text-xs text-slate-400">
+                أدخل الكلمات والمصطلحات الخاصة بكم (مفصولة بفاصلة أو سطر جديد). سيتم اختيار 25 كلمة عشوائية للوحة اللعبة.
+            </p>
+            <textarea id="custom-words-textarea" rows="6" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm focus:outline-none focus:border-amber-500 text-slate-200 resize-none"></textarea>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeCustomWordsModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-bold transition">إلغاء</button>
+                <button onclick="saveCustomWords()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-slate-950 rounded-xl text-xs font-bold transition shadow-lg shadow-amber-600/20">حفظ وتطبيق الكلمات</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="game-over-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-8 text-center space-y-6 shadow-2xl">
+            <div class="w-20 h-20 mx-auto rounded-3xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-4xl shadow-xl animate-bounce">
+                👑
+            </div>
+            <div>
+                <h2 id="winner-title" class="text-2xl font-black text-amber-400 mb-2">الفريق الأزرق ينتصر!</h2>
+                <p id="winner-subtitle" class="text-sm text-slate-400">سيطرة تامة على رومات وزارة الدعثه الداخلية.</p>
+            </div>
+            <button onclick="resetGame()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-red-600 text-slate-950 font-black rounded-xl text-sm transition shadow-lg shadow-amber-500/30">
+                لعب جولة جديدة 🚀
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-900">
+        وزارة الدعثه الداخلية © 2026 - جميع الحقوق محفوظة للكميونتي الأسطوري
+    </footer>
+
+    <!-- JavaScript Game Logic -->
+    <script>
+        // Default Community Words (الدعثه الثيم)
+        const defaultAldahthaWords = [
+            "الدعثه", "وزير الداخلية", "روم الفويس", "المخرب", "البوت الأسطوري",
+            "طقطقة", "تكتيك", "رانك", "جيم كودنيمز", "سيرفر الديسكورد",
+            "أوبن ميك", "ميوت", "ديفين", "باند", "أدمن",
+            "عضو مميز", "سحب روم", "شات عام", "سيرفر خاص", "تخريب",
+            "عقوبات", "عفو ملكي", "سبام", "ريأكشن", "هاتفك",
+            "سحب جوائز", "بطولة السيرفر", "قائد الفريق", "عميل سري", "كلمة السر"
+        ];
+
+        let customWordsList = [...defaultAldahthaWords];
+        let boardCards = [];
+        let currentTurn = 'blue'; // 'blue' or 'red'
+        let blueRemaining = 8;
+        let redRemaining = 8;
+        let isSpymasterView = false;
+        let playerTeam = 'blue';
+        let playerRole = 'operative';
+        let playerName = 'مخرب الدعثه';
+
+        // Initialize Game
+        function initGame() {
+            // Pick 25 random words from custom list
+            const shuffledWords = [...customWordsList].sort(() => 0.5 - Math.random());
+            const selectedWords = shuffledWords.slice(0, 25);
+
+            // Assign roles: 9 blue, 8 red, 7 neutral (assassins), 1 assassin (or adjust as classic Codenames: 9 red, 8 blue or vice versa)
+            // Let's say: 9 for starting team (blue), 8 for red, 7 neutral, 1 assassin
+            let types = [];
+            for (let i = 0; i < 9; i++) types.push('blue');
+            for (let i = 0; i < 8; i++) types.push('red');
+            for (let i = 0; i < 7; i++) types.push('neutral');
+            types.push('assassin');
+
+            // Shuffle types
+            types.sort(() => 0.5 - Math.random());
+
+            boardCards = selectedWords.map((word, index) => ({
+                id: index,
+                word: word,
+                type: types[index], // 'blue', 'red', 'neutral', 'assassin'
+                revealed: false
+            }));
+
+            blueRemaining = 9;
+            redRemaining = 8;
+            currentTurn = 'blue';
+
+            updateScoreboard();
+            renderBoard();
+        }
+
+        function renderBoard() {
+            const grid = document.getElementById('board-grid');
+            grid.innerHTML = '';
+
+            boardCards.forEach(card => {
+                const cardEl = document.createElement('div');
+                
+                // Base styles
+                let baseClasses = "relative rounded-2xl flex items-center justify-center p-3 text-center font-bold text-xs md:text-sm select-none cursor-pointer card-inner aspect-[4/3] md:aspect-auto md:h-24 shadow-lg border transition-all duration-300 ";
+
+                if (card.revealed) {
+                    if (card.type === 'blue') baseClasses += "bg-blue-600/80 border-blue-500 text-white shadow-blue-900/50";
+                    else if (card.type === 'red') baseClasses += "bg-red-600/80 border-red-500 text-white shadow-red-900/50";
+                    else if (card.type === 'neutral') baseClasses += "bg-slate-800/80 border-slate-700 text-slate-400";
+                    else if (card.type === 'assassin') baseClasses += "bg-slate-950 border-red-600 text-red-500 glow-red animate-pulse";
+                } else {
+                    // Hidden card
+                    if (isSpymasterView) {
+                        // Spymaster sees hints
+                        if (card.type === 'blue') baseClasses += "bg-slate-900 border-blue-500/60 text-blue-400 shadow-blue-500/10";
+                        else if (card.type === 'red') baseClasses += "bg-slate-900 border-red-500/60 text-red-400 shadow-red-500/10";
+                        else if (card.type === 'neutral') baseClasses += "bg-slate-900 border-slate-600/60 text-slate-300";
+                        else if (card.type === 'assassin') baseClasses += "bg-slate-900 border-red-900 text-red-500";
+                    } else {
+                        // Normal player view
+                        baseClasses += "bg-slate-900/90 hover:bg-slate-800 border-slate-800 text-slate-200 hover:border-slate-600";
+                    }
+                }
+
+                cardEl.className = baseClasses;
+                cardEl.innerHTML = `
+                    <span class="relative z-10">${card.word}</span>
+                    ${isSpymasterView && !card.revealed ? `<span class="absolute top-1 right-2 text-[10px] uppercase opacity-80 font-mono">${card.type}</span>` : ''}
+                `;
+
+                cardEl.onclick = () => revealCard(card.id);
+                grid.appendChild(cardEl);
+            });
+        }
+
+        function revealCard(id) {
+            const card = boardCards.find(c => c.id === id);
+            if (!card || card.revealed) return;
+
+            card.revealed = true;
+
+            if (card.type === 'blue') {
+                blueRemaining--;
+                if (currentTurn !== 'blue') checkWinConditions();
+            } else if (card.type === 'red') {
+                redRemaining--;
+                if (currentTurn !== 'red') checkWinConditions();
+            } else if (card.type === 'assassin') {
+                // Game Over immediately!
+                triggerGameOver(currentTurn === 'blue' ? 'red' : 'blue', 'تم اختيار بطاقة السفاح (Assassin)! خسارة فورية.');
+                renderBoard();
+                return;
+            } else {
+                // Neutral - switch turn automatically
+                endTurn();
+            }
+
+            checkWinConditions();
+            renderBoard();
+        }
+
+        function checkWinConditions() {
+            if (blueRemaining === 0) {
+                triggerGameOver('blue', 'الفريق الأزرق أنهى جميع كلمات العملاء بنجاح!');
+            } else if (redRemaining === 0) {
+                triggerGameOver('red', 'الفريق الأحمر أنهى جميع كلمات العملاء بنجاح!');
+            }
+        }
+
+        function updateScoreboard() {
+            document.getElementById('blue-score').innerText = blueRemaining;
+            document.getElementById('red-score').innerText = redRemaining;
+            const turnInd = document.getElementById('turn-indicator');
+            if (currentTurn === 'blue') {
+                turnInd.innerText = "دور: الفريق الأزرق";
+                turnInd.className = "px-3 py-1 rounded-lg bg-blue-900/40 text-blue-300 font-semibold text-xs border border-blue-700/50";
+            } else {
+                turnInd.innerText = "دور: الفريق الأحمر";
+                turnInd.className = "px-3 py-1 rounded-lg bg-red-900/40 text-red-300 font-semibold text-xs border border-red-700/50";
+            }
+        }
+
+        function endTurn() {
+            currentTurn = currentTurn === 'blue' ? 'red' : 'blue';
+            updateScoreboard();
+        }
+
+        function toggleRoleView() {
+            isSpymasterView = !isSpymasterView;
+            const btn = document.getElementById('role-toggle-btn');
+            const spyPanel = document.getElementById('spymaster-control-panel');
+            
+            if (isSpymasterView) {
+                btn.innerText = "🔒 إخفاء وضع القائد";
+                btn.className = "px-3 py-1.5 bg-amber-600 text-slate-950 text-xs font-bold rounded-lg transition shadow-lg shadow-amber-600/30";
+                if (playerRole === 'spymaster') {
+                    spyPanel.classList.remove('hidden');
+                }
+            } else {
+                btn.innerText = "👁️ تبديل وضع القائد (Spymaster)";
+                btn.className = "px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition";
+                spyPanel.classList.add('hidden');
+            }
+            renderBoard();
+        }
+
+        function setRole(role) {
+            playerRole = role;
+            const btnOp = document.getElementById('btn-role-op');
+            const btnSpy = document.getElementById('btn-role-spy');
+            const spyPanel = document.getElementById('spymaster-control-panel');
+
+            if (role === 'operative') {
+                btnOp.className = "py-1.5 px-2 bg-slate-800 text-slate-200 text-xs rounded-lg border border-slate-700 font-semibold transition";
+                btnSpy.className = "py-1.5 px-2 bg-slate-900 text-slate-400 text-xs rounded-lg border border-slate-800 font-semibold transition";
+                spyPanel.classList.add('hidden');
+            } else {
+                btnSpy.className = "py-1.5 px-2 bg-amber-600 text-slate-950 text-xs rounded-lg font-bold transition shadow-lg shadow-amber-600/20";
+                btnOp.className = "py-1.5 px-2 bg-slate-900 text-slate-400 text-xs rounded-lg border border-slate-800 font-semibold transition";
+                if (isSpymasterView) spyPanel.classList.remove('hidden');
+            }
+        }
+
+        function joinTeam(team) {
+            playerTeam = team;
+            const btnBlue = document.getElementById('btn-join-blue');
+            const btnRed = document.getElementById('btn-join-red');
+
+            if (team === 'blue') {
+                btnBlue.className = "py-2 px-3 bg-blue-600 text-white border border-blue-500 text-xs font-bold rounded-xl transition shadow-lg shadow-blue-600/30";
+                btnRed.className = "py-2 px-3 bg-red-950/40 hover:bg-red-900/50 border border-red-800/60 text-red-400 text-xs font-bold rounded-xl transition";
+            } else {
+                btnRed.className = "py-2 px-3 bg-red-600 text-white border border-red-500 text-xs font-bold rounded-xl transition shadow-lg shadow-red-600/30";
+                btnBlue.className = "py-2 px-3 bg-blue-950/40 hover:bg-blue-900/50 border border-blue-800/60 text-blue-400 text-xs font-bold rounded-xl transition";
+            }
+            updatePlayersList();
+        }
+
+        function updatePlayerName(name) {
+            playerName = name || 'عضو الدعثه';
+            updatePlayersList();
+        }
+
+        function updatePlayersList() {
+            const list = document.getElementById('players-list');
+            const teamBadge = playerTeam === 'blue' ? '<span class="text-[10px] text-blue-400">(أزرق)</span>' : '<span class="text-[10px] text-red-400">(أحمر)</span>';
+            
+            list.innerHTML = `
+                <li class="flex items-center justify-between bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800/50">
+                    <span>${playerName} ${teamBadge}</span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                </li>
+                <li class="flex items-center justify-between bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800/50">
+                    <span>وزير السيرفر <span class="text-[10px] text-red-400">(أحمر)</span></span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                </li>
+                <li class="flex items-center justify-between bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800/50">
+                    <span>مراقب الرومات <span class="text-[10px] text-blue-400">(أزرق)</span></span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                </li>
+            `;
+        }
+
+        function submitClue() {
+            const word = document.getElementById('clue-word').value.trim();
+            const count = document.getElementById('clue-count').value;
+            if (!word) return;
+
+            document.getElementById('current-clue-text').innerText = `${word} : ${count}`;
+            document.getElementById('clue-word').value = '';
+        }
+
+        function openCustomWordsModal() {
+            document.getElementById('custom-words-textarea').value = customWordsList.join(', ');
+            document.getElementById('custom-words-modal').classList.remove('hidden');
+        }
+
+        function closeCustomWordsModal() {
+            document.getElementById('custom-words-modal').classList.add('hidden');
+        }
+
+        function saveCustomWords() {
+            const text = document.getElementById('custom-words-textarea').value;
+            const words = text.split(/[\n,]+/).map(w => w.trim()).filter(w => w.length > 0);
+            if (words.length >= 25) {
+                customWordsList = words;
+                closeCustomWordsModal();
+                initGame();
+            } else {
+                alert('يرجى إدخال 25 كلمة على الأقل لتشغيل اللعبة بشكل صحيح.');
+            }
+        }
+
+        function triggerGameOver(winnerTeam, message) {
+            const modal = document.getElementById('game-over-modal');
+            const title = document.getElementById('winner-title');
+            const subtitle = document.getElementById('winner-subtitle');
+
+            if (winnerTeam === 'blue') {
+                title.innerText = "الفريق الأزرق ينتصر! 🎉";
+                title.className = "text-2xl font-black text-blue-400 mb-2";
+            } else {
+                title.innerText = "الفريق الأحمر ينتصر! 🔥";
+                title.className = "text-2xl font-black text-red-400 mb-2";
+            }
+            subtitle.innerText = message;
+            modal.classList.remove('hidden');
+        }
+
+        function resetGame() {
+            document.getElementById('game-over-modal').classList.add('hidden');
+            document.getElementById('current-clue-text').innerText = "-";
+            isSpymasterView = false;
+            document.getElementById('role-toggle-btn').innerText = "👁️ تبديل وضع القائد (Spymaster)";
+            document.getElementById('role-toggle-btn').className = "px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition";
+            document.getElementById('spymaster-control-panel').classList.add('hidden');
+            initGame();
+        }
+
+        // Run on load
+        window.onload = function() {
+            initGame();
+        };
+    </script>
+</body>
+</html>
