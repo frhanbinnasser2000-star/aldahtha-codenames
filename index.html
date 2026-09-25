@@ -53,14 +53,14 @@
             <div id="nickname-display" class="text-xs text-gray-400">اللاعب: <span id="current-player-name" class="text-white font-bold">أبو ناصر مجهد الكل</span></div>
         </div>
         <div id="top-status" class="text-sm font-black text-yellow-400 text-center">
-            وزارة الدعثه الداخلية - مرحلة التجهيز الاحترافي 🎮
+            وزارة الدعثه الداخلية - كودنيمز الاحترافية
         </div>
         <div class="flex items-center gap-2">
             <button onclick="changeNickname()" class="bg-gray-800 hover:bg-gray-700 text-xs px-3 py-1.5 rounded-xl border border-gray-700 text-gray-300 font-bold transition">تغيير الاسم</button>
         </div>
     </header>
 
-    <!-- المحتوى الرئيسي (الترتيب: يمين أزرق، وسط لوحة، يسار أحمر) -->
+    <!-- المحتوى الرئيسي -->
     <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 max-w-[1700px] mx-auto w-full items-start">
         
         <!-- الفريق الأزرق (اليمين) -->
@@ -91,14 +91,14 @@
                 <div class="w-16 h-16 bg-indigo-600/20 border-2 border-indigo-500 text-indigo-400 rounded-2xl flex items-center justify-center text-2xl font-black shadow-xl mx-auto">د</div>
                 <div>
                     <h2 class="text-2xl font-black text-white mb-1">لعبة كودنيمز - وزارة الدعثه</h2>
-                    <p class="text-xs text-gray-400">اختر فريقك وانضم كقائد أو عميل، ثم اضغط ابدأ اللعبة!</p>
+                    <p class="text-xs text-gray-400">اختر فريقك، انضم كقائد أو عميل، ثم ابدأ الجلسة بكل مرونة!</p>
                 </div>
                 <button onclick="startTheGame()" class="w-full max-w-md mx-auto bg-green-600 hover:bg-green-500 text-white font-black py-3.5 rounded-2xl text-sm shadow-2xl transition tracking-wide block">
                     🚀 ابدأ اللعبة الآن (START GAME)
                 </button>
             </div>
 
-            <!-- لوحة اللعب الحقيقية -->
+            <!-- لوحة اللعب الفعلية -->
             <div id="game-board-screen" class="hidden flex flex-col gap-3">
                 <div class="flex justify-between items-center bg-gray-950 px-4 py-2.5 rounded-xl border border-gray-800">
                     <div class="text-blue-400 font-black text-xs">🔵 الأزرق: <span id="blue-score">9</span></div>
@@ -110,7 +110,7 @@
                 <!-- لوحة البطاقات الـ 25 -->
                 <div id="board" class="card-grid"></div>
 
-                <!-- شريط تلميح القائد السفلي (معدل للعمل بكامل الكفاءة والكتابة) -->
+                <!-- شريط تلميح القائد السفلي (يعمل بكامل الكفاءة دون أي تقطيع) -->
                 <div id="clue-control-bar" class="hidden bg-gray-950 border border-indigo-500/50 p-2.5 rounded-xl flex items-center justify-between gap-3">
                     <div class="text-xs font-bold text-indigo-300" id="clue-status-label">إعطاء تلميح لفريقك:</div>
                     <div class="flex items-center gap-2 flex-1 max-w-md">
@@ -287,8 +287,6 @@
                             alert('⚠️ كبففف! ضغطت على كلمة الاغتيال! انتهت اللعبة!');
                         }
                         renderBoard();
-                    } else if (spymasterMode) {
-                        // السماح للقائد بالنقر دون منع الكتابة
                     }
                 };
                 board.appendChild(card);
