@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة كود نيم (Codenames)</title>
+    <style>
+        body {
+            font-family: Tahoma, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 { color: #f39c12; }
+        .info-panel {
+            background: #2c3e50;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: inline-block;
+            font-size: 18px;
+        }
+        .turn-red { color: #e74c3c; font-weight: bold; }
+        .turn-blue { color: #3498db; font-weight: bold; }
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            max-width: 800px;
+            margin: 0 auto 20px auto;
+        }
+        .card {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            padding: 25px 10px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            user-select: none;
+            transition: 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .card:hover { background-color: #bdc3c7; }
+        
+        /* ألوان الكشف حسب الأدوار (يمكنك تعديلها إذا بغيت وضع الجاسوس/الرئيس) */
+        .card.red { background-color: #e74c3c; color: white; }
+        .card.blue { background-color: #3498db; color: white; }
+        .card.assassin { background-color: #2c3e50; color: #e74c3c; border: 2px solid #e74c3c; }
+        .card.bystander { background-color: #95a5a6; color: #2c3e50; }
+
+        button {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover { background-color: #219653; }
+    </style>
+</head>
+<body>
+
+    <h1>لعبة كود نيم (Codenames)</h1>
+    
+    <div class="info-panel">
+        <div id="status">الدور الحالي: <span id="current-turn" class="turn-red">الفريق الأحمر</span></div>
+        <div>المتبقي - أحمر: <span id="red-left">9</span> | أزرق: <span id="blue-left">8</span></div>
+    </div>
+
+    <div class="board" id="gameBoard"></div>
+
+    <button onclick="initGame()">إعادة ضبط / لعبة جديدة</button>
+
+    <script>
+        // قائمة الكلمات (يمكنك التعديل عليها أو إضافة كلمات جديدة بسهولة هنا)
+        const wordsList = [
+            "تفاح", "حاسوب", "قمر", "مفتاح", "شمس", "بحر", "سيارة", "طائرة",
+            "قلم", "جبل", "قصر", "ذهب", "ساعة", "شجرة", "حصان", "نمر",
+            "طبيب", "سفينة", "كتاب", "نار", "ثلج", "برق", "صواريخ", "مكتب",
+            "ملعب", "عالم", "طريق", "طاولة", "مدارس", "مسجد"
+        ];
+
+        let board = [];
+        let currentTurn = 'red'; // 'red' or 'blue'
+        let redLeft = 9;
+        let blueLeft = 8;
+        let gameOver = false;
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function initGame() {
+            gameOver = false;
+            currentTurn = 'red';
+            redLeft = 9;
+            blueLeft = 8;
+            updateStatus();
+
+            // اختيار 25 كلمة عشوائية
+            let selectedWords = shuffle([...wordsList]).slice(0, 25);
+
+            // توزيع الأدوار: 9 أحمر، 8 أزرق، 1 قاتل، الباقي مدنيين (بايستاندر)
+            let roles = [...Array(9).fill('red'), ...Array(8).fill('blue'), 'assassin', ...Array(7).fill('bystander')];
+            roles = shuffle(roles);
+
+            board = selectedWords.map((word, index) => ({
+                word: word,
+                role: roles[index],
+                revealed: false
+            }));
+
+            renderBoard();
+        }
+
+        function renderBoard() {
+            const boardElement = document.getElementById('gameBoard');
+            boardElement.innerHTML = '';
+
+            board.forEach((card, index) => {
+                const cardDiv = document.createElement('div');
+                cardDiv.classList.add('card');
+                cardDiv.innerText = card.revealed ? card.word : card.word; // تقدر تخلي الكلمات مخفية تماماً أو واضحة حسب رغبتك
+                
+                if (card.revealed) {
+                    cardDiv.classList.add(card.role);
+                }
+
+                cardDiv.onclick = () => revealCard(index);
+                boardElement.appendChild(cardDiv);
+            });
+        }
+
+        function revealCard(index) {
+            if (gameOver || board[index].revealed) return;
+
+            board[index].revealed = true;
+            let role = board[index].role;
+
+            if (role === 'red') {
+                redLeft--;
+                if (redLeft === 0) {
+                    alert('انتهت اللعبة! فاز الفريق الأحمر!');
+                    gameOver = true;
+                }
+            } else if (role === 'blue') {
+                blueLeft--;
+                if (blueLeft === 0) {
+                    alert('انتهت اللعبة! فاز الفريق الأزرق!');
+                    gameOver = true;
+                }
+            } else if (role === 'assassin') {
+                alert(`كشفوا القاتل! خسر ${currentTurn === 'red' ? 'الفريق الأحمر' : 'الفريق الأزرق'} وفاز الفريق المنافس!`);
+                gameOver = true;
+            }
+
+            // تبديل الدور إذا فشل الفريق في اختيار كلمته أو اختار بطاقة خطأ
+            currentTurn = currentTurn === 'red' ? 'blue' : 'red';
+            updateStatus();
+            renderBoard();
+        }
+
+        function updateStatus() {
+            const turnSpan = document.getElementById('current-turn');
+            if (currentTurn === 'red') {
+                turnSpan.innerText = 'الفريق الأحمر';
+                turnSpan.className = 'turn-red';
+            } else {
+                turnSpan.innerText = 'الفريق الأزرق';
+                turnSpan.className = 'turn-blue';
+            }
+            document.getElementById('red-left').innerText = redLeft;
+            document.getElementById('blue-left').innerText = blueLeft;
+        }
+
+        // تشغيل اللعبة لأول مرة
+        initGame();
+    </script>
+</body>
+</html>
